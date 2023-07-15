@@ -1,0 +1,104 @@
+﻿@inject IAuthorizationService AuthorizationService
+@model List<MerchantViewModel>
+@{
+    ViewData["Title"] = "Merchants";
+}
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h2 class="m-0 text-center font-weight-bold text-secondary">التجار</h2>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <div class="d-flex justify-content-end justify-content-md-start">
+                        @using (Html.BeginForm("Search", "Employee", FormMethod.Get))
+                        {
+                            <div class="form-group col-12 rounded d-flex align-items-center">
+
+                                <input type="text" name="searchTerm" class="form-control" value="@ViewBag.SearchTerm" />
+                                <button type="submit" class="btn btn-outline-secondary m-1">بحث</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-6 col-12">
+                    <div class="d-flex justify-content-start justify-content-md-end">
+                        <p class="m-2">
+                            @if (AuthorizationService.AuthorizeAsync(User, Permissions.Employees.Create).Result.Succeeded)
+                            {
+                                <a asp-action="Add" class="btn btn-outline-secondary">إضافة تاجر جديد</a>
+                            }
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead style="background-color:lightgrey">
+                        <tr>
+                            <th>الاسم</th>
+                            <th>البريد الالكتروني</th>
+                            <th>رقم الهاتف</th>
+                            <th>الفرع</th>
+                            <th>الصلاحية</th>
+                            <th>الحاله</th>
+                            <th>الاعدادات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Name</td>
+                                <td>@item.Email</td>
+                                <td>@item.Phone</td>
+                                <td>@item.BranchName</td>
+                                <td>@item.Role</td>
+                                <td class="form-switch">
+                                    @if (AuthorizationService.AuthorizeAsync(User, Permissions.Merchants.Delete).Result.Succeeded)
+                                    {
+                                        <input style="margin-left: 0;" class="form-check-input" type="checkbox"
+                                       asp-for="@item.Status" data-id="@item.MerchantId" onchange="changeState(this)" checked="@item.Status">
+                                    }
+                                </td>
+                                <td>
+                                    @if (AuthorizationService.AuthorizeAsync(User, Permissions.Merchants.Edit).Result.Succeeded)
+                                    {
+                                    <a asp-action="Edit" asp-route-id="@item.MerchantId" class="btn btn-outline-success">تعديل <i class="fa-solid fa-pen-to-square "></i></a>
+
+                                    }
+                                </td>
+                            </tr>
+                        }
+
+
+
+                    </tbody>
+                </table>
+            </div>
+            @section Scripts {
+                <script>
+                    function changeState(checkbox) {
+                        var id = $(checkbox).data('id');
+                        var status = checkbox.checked;
+                        $.ajax({
+                            url: '@Url.Action("ChangeState", "Merchant")',
+                            type: 'POST',
+                            data: { id: id, status: status },
+                            success: function () {
+                                console.log('State changed successfully!');
+                            },
+                            error: function () {
+                                console.log('Failed to change state!');
+                            }
+                        });
+                    }
+                </script>
+            }

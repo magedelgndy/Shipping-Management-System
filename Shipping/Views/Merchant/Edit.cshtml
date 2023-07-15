@@ -1,0 +1,257 @@
+﻿@model MerchantEditViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="bg-light rounded my-4 row">
+    <h2 class="p-4 fw-bold text-center text-secondary">تعديل بيانات التاجر</h2>
+</div>
+
+
+<form asp-controller="Merchant" asp-action="Edit" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="d-flex flex-wrap  bg-light rounded my-4">
+
+        <div class="form-group col-md-4 p-3">
+            <label asp-for="Name">الإسم</label>
+            <input type="text" class="form-control" asp-for="Name">
+        </div>
+        <div class="form-group col-md-4 p-3">
+            <label asp-for="Email">البريدالإلكتروني</label>
+            <input type="email" class="form-control" asp-for="Email">
+        </div>
+        <div class="form-group col-md-4 p-3">
+            <label asp-for="Phone">رقم الهاتف</label>
+            <input asp-for="Phone" type="text" class="form-control">
+        </div>
+        <div class="form-group col-md-4 p-1">
+            <label asp-for="Government">المحافظة : </label>
+            <select id="state" class="form-control" asp-for="Government">
+
+                @foreach (var state in ViewBag.States)
+                {
+                    <option value="@state.Name">@state.Name</option>
+                }
+            </select>
+        </div>
+        <div class="form-group col-md-4 p-1">
+            <label asp-for="BranchName">الفرع : </label>
+            <select id="branch" class="form-control" asp-for="BranchName">
+                @foreach (Branch item in ViewBag.Branches)
+                {
+                    <option value="@item.Name">@item.Name</option>
+                }
+            </select>
+        </div>
+         <div class="form-group col-md-4 p-1">
+                    <label asp-for="City">المدينة : </label>
+                    <select id="city" asp-for="City" class="form-control">
+                       
+                        @foreach (var city in ViewBag.Cities)
+                        {
+                            <option value="@city">@city</option>
+                        }
+                    </select>
+                </div>
+
+        <div class="form-group col-md-4 p-3">
+            <label asp-for="Address">العنوان</label>
+            <input type="text" class="form-control" asp-for="Address">
+        </div>
+
+        <div class="form-group col-md-4 p-3">
+            <label asp-for="PickUpPrice">سعر الإستلام من مقر الشركة</label>
+            <input type="number" class="form-control" asp-for="PickUpPrice">
+        </div>
+        <div class="form-group col-md-4 p-3">
+            <label asp-for="RefuseCostPercent">تكلفة رفض الشحنة</label>
+            <input type="number" class="form-control" asp-for="RefuseCostPercent">
+        </div>
+
+        <hr class="sidebar-divider bg-black" style="width: 100%;">
+
+        <a id="add-price-btn" class="btn btn-outline-success">اضافة باقة خاصة</a>
+        <div class="form-group p-1 col-12">
+
+            <br />
+            <table class="table table-bordered text-center table-hover col-8">
+                <thead>
+                    <tr>
+                        <th>المحافظة</th>
+                        <th>المدينة</th>
+                        <th>سعر الشحن</th>
+                        <th>حذف</th>
+                    </tr>
+                </thead>
+                <tbody id="prices-table-body">
+                    @for (int i = 0; i < Model.SpecialCities.Count; i++)
+                    {
+                        <tr>
+                            <td>
+                                <select asp-for="@Model.SpecialCities[i].Government" class="form-control special-state-dropdown" asp-items="@ViewBag.StatesList">
+                                </select>
+
+                            </td>
+                            <td>
+                                <select asp-for="@Model.SpecialCities[i].City" class="form-control special-city-dropdown" asp-items="@ViewBag.CitiesList">
+                                </select>
+                            </td>
+                            <td>
+                                <input type="number" asp-for="@Model.SpecialCities[i].Price" class="form-control">
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger" onclick="removeRow(this)">حذف</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="m-3" style="position: relative;height: 10vh;">
+        <button type="submit" class="btn btn-outline-primary">حفظ</button>
+        <a asp-controller="Merchant" asp-action="Index" class="btn btn-outline-secondary">إلغاء</a>
+    </div>
+
+
+
+
+</form>
+
+
+
+@section scripts{
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var stateDropdown = $('#state');
+            var cityDropdown = $('#city');
+
+            stateDropdown.on('change', function () {
+                var selectedState = stateDropdown.val();
+
+                cityDropdown.empty();
+
+                $.ajax({
+                    url: '/Order/GetCitiesByState',
+                    type: 'GET',
+                    data: { state: selectedState },
+                    success: function (result) {
+                        $.each(result, function (index, city) {
+                            cityDropdown.append($('<option></option>').val(city).text(city));
+                        });
+                    },
+                    error: function () {
+                        console.log('Failed to retrieve cities.');
+                    }
+                });
+            });
+        });
+
+    </script>
+    <script>
+        $(document).ready(function () {
+            var stateDropdown = $('#state');
+            var branchDropdown = $('#branch');
+
+            stateDropdown.on('change', function () {
+                var selectedState = stateDropdown.val();
+
+                branchDropdown.empty();
+
+                $.ajax({
+                    url: '/Order/GetBranchesByState',
+                    type: 'GET',
+                    data: { state: selectedState },
+                    success: function (result) {
+                        $.each(result, function (index, city) {
+                            branchDropdown.append($('<option></option>').val(city).text(city));
+                        });
+                    },
+                    error: function () {
+                        console.log('Failed to retrieve cities.');
+                    }
+                });
+            });
+        });
+
+    </script>
+
+    <script>
+
+        $(document).ready(function () {
+            $("#add-price-btn").click(function () {
+                addProductRow();
+            });
+        });
+        function removeRow(element) {
+            $(element).closest("tr").remove();
+            var totalWeight = calculateTotalWeight();
+            $("#TotalWeight").val(totalWeight);
+        }
+
+
+
+
+        function addProductRow() {
+            var tableBody = $("#prices-table-body");
+            var index = tableBody.children().length;
+
+            var newRow = $("<tr>");
+            newRow.append($("<td>").append($("<select>").attr("name", "SpecialCities[" + index + "].Government").attr("class", "form-control special-state-dropdown").attr("type", "text")));
+            newRow.append($("<td>").append($("<select>").attr("name", "SpecialCities[" + index + "].City").attr("class", "form-control special-city-dropdown").attr("type", "text").append(" < option > اختر مدينة < /option>")));
+            newRow.append($("<td>").append($("<input>").attr("name", "SpecialCities[" + index + "].price").attr("class", "form-control").attr("type", "number")));
+            newRow.append($("<td>").append($("<button>").attr("type", "button").attr("class", "btn btn-danger").text("حذف").click(function () {
+                $(this).closest("tr").remove();
+            })));
+
+            $.ajax({
+                url: '/Merchant/GetStates',
+                type: 'GET',
+                success: function (states) {
+                    var stateDropdown = $('.special-state-dropdown');
+                    stateDropdown.append($('<option>اختر محافظة</option>'));
+                    $.each(states, function (index, state) {
+                        stateDropdown.append($('<option></option>').val(state.name).text(state.name));
+                    });
+                },
+                error: function () {
+                    console.log('Failed to retrieve states.');
+                }
+            });
+
+            tableBody.append(newRow);
+        }
+
+        $(document).on('change', '.special-state-dropdown', function () {
+            var stateDropdown = $(this);
+            var cityDropdown = stateDropdown.closest("tr").find(".special-city-dropdown");
+
+            var selectedState = stateDropdown.val();
+
+
+            // Make an AJAX call to retrieve cities based on the selected state
+            $.ajax({
+                url: '/Merchant/GetCitiesByState',
+                type: 'GET',
+                data: { state: selectedState },
+                success: function (cities) {
+                    cityDropdown.empty();
+                    $.each(cities, function (index, city) {
+                        cityDropdown.append($('<option></option>').val(city).text(city));
+                    });
+                },
+                error: function () {
+                    console.log('Failed to retrieve cities.');
+                }
+            });
+        });
+
+
+    </script>
+}
+

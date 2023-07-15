@@ -1,0 +1,118 @@
+﻿@inject IAuthorizationService AuthorizationService
+@model List<Branch>
+
+@{
+    ViewData["Title"] = "Branches";
+    var count = 1;
+}
+<!-- Page Heading -->
+
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 rounded">
+        <h1 class="m-0 text-center font-weight-bold text-secondary">الافـرع</h1>
+    </div>
+
+    <div class="card-body">
+        <div class="d-flex justify-content-around align-items-center m-3">
+            @using (Html.BeginForm("Search", "Branch", FormMethod.Get))
+            {
+
+                <input type="submit" class="btn btn-outline-secondary m-0" value="بحث" />
+                <input type="text" name="query" />
+            }
+            @if (AuthorizationService.AuthorizeAsync(User, Permissions.Branches.Create).Result.Succeeded)
+            {
+                <a asp-action="Add" class="d-none d-sm-inline-block btn btn-sm btn-outline-secondary shadow-sm">
+                    <i class="fas fa-plus-circle fa-sm text-gray-800"></i> اضافة فرع جديد
+                </a>
+            }
+        </div>
+        <div class="table-responsive">
+        <table class="table table-bordered text-center " cellspacing="0" id="my-table">
+            <thead>
+                <tr style="background-color:#ddd;">
+                    <td>#</td>
+                    <td>الاسم</td>
+                    <td>التاريخ</td>
+                    <td>المحافظة</td>
+                    <td>الحالة</td>
+                    <td>الإعدادات</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Branch b in Model)
+                {
+                    <tr>
+                        <td>@count</td>
+                        <td>@b.Name</td>
+                        <td>@b.Date</td>
+
+                        <td>@b.State.Name</td>
+                        @if (AuthorizationService.AuthorizeAsync(User, Permissions.Branches.Delete).Result.Succeeded)
+                        {
+                                <td class="form-switch" style="margin:auto;">
+                                <input style="margin:auto"  class="form-check-input btn-outline-success mt-3"  type="checkbox" asp-for="@b.Status"
+                                   data-id="@b.Id" onchange="changeState(this)" checked="@b.Status">
+                            </td>
+                        }
+                        <td style="width:200px">
+                            @if (AuthorizationService.AuthorizeAsync(User, Permissions.Branches.Edit).Result.Succeeded)
+                            {
+                                    <a asp-controller="Branch" asp-action="Edit" asp-route-id="@b.Id" class="btn btn-outline-success m-1">
+                                        <i class="fa-solid fa-pen-to-square fa-1x"></i>
+                                </a>
+                            }
+                            @if (AuthorizationService.AuthorizeAsync(User, Permissions.Branches.Delete).Result.Succeeded)
+                            {
+                                <form method="post" asp-action="Delete" asp-controller="branch" asp-route-id="@b.Id" style="display:inline">
+                                    <span id="DeleteSpan_@b.Id" style="cursor:pointer">
+                                        | <a onclick="confirmDelete('@b.Id',true)" class="btn btn-outline-danger m-1">
+                                            <i class="fa-solid fa-trash-can fa-1x"></i>
+                                        </a>
+                                    </span>
+
+                                    <span id="ConfirmDeleteSpan_@b.Id" style="display:none" class="m-2">
+                                        <div>
+
+                                                <button type="submit" class="btn btn-danger mt-3" style="padding: 3px;">نعم</button>
+                                                <a onclick="confirmDelete('@b.Id',false)" class="btn btn-primary mt-3" style="padding: 3px;">لا</a>
+                                        </div>
+
+                                    </span>
+                                </form>
+                            }
+
+                        </td>
+
+                        </tr>
+
+                        count += 1;
+                    }
+            </tbody>
+        </table>
+    </div>
+    </div>
+</div>
+@section Scripts
+    {
+    <script>
+        function changeState(checkbox) {
+            var id = $(checkbox).data('id');
+            var status = checkbox.checked;
+            $.ajax({
+                url: '@Url.Action("ChangeState", "Branch")',
+                type: 'POST',
+                data: { id: id, status: status },
+                success: function () {
+                    console.log('State changed successfully!');
+                },
+                error: function () {
+                    console.log('Failed to change state!');
+                }
+            });
+        }
+
+
+    </script>
+}

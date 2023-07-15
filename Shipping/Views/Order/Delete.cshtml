@@ -1,0 +1,54 @@
+﻿@model Order
+
+
+
+<div class="card shadow mb-4 ">
+    <div class=" card-header p-3 rounded">
+        <h1 class="m-0 text-center font-weight-bold text-secondary">حذف طلب</h1>
+    </div>
+    <div class="card-body px-5">
+    <p>هل انت متأكد من أنك تريد حذف هذا الطلب ؟ </p>
+    <div class="d-flex m-auto mb-3">
+        <dl class="row">
+            <dt class="col-sm-3">الرقم التسلسلي</dt>
+            <dd class="col-sm-9">@Model.SerialNumber</dd>
+            <dt class="col-sm-3">اسم العميل</dt>
+            <dd class="col-sm-9">@Model.ClientName</dd>
+            <dt class="col-sm-3">تاريخ الطلب</dt>
+            <dd class="col-sm-9">@Model.Date</dd>
+        </dl>
+    </div>
+        <div class="d-flex justify-content-center align-items-center m-3 mb-5">
+        <table class="table table-bordered text-center table-hover col-8">
+            <thead style="background-color:#ddd;">
+                <tr>
+                    <th>اسم المنتج</th>
+                    <th>الكمية</th>
+                    <th>الوزن</th>
+                </tr>
+            </thead>
+            <tbody id="products-table-body">
+                @foreach(OrderProduct item in Model.orderProducts)
+                {
+                    <tr>
+                        <th>@item.ProductName</th>
+                        <th>@item.ProductQuantity</th>
+                        <th>@item.Weight</th>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        </div>
+
+
+    <form asp-action="DeleteConfirmed" asp-route-Id="@Model.SerialNumber" method="post">
+            <div class="d-flex justify-content-end align-items-center col-12">
+                <div class="form-group d-flex justify-content-end px-3 mb-3  col-4">
+                    <input type="submit" value="Delete" class="btn btn-outline-danger col-8 mx-2" />
+                    <a asp-action="Index" class="btn btn-secondary col-4">Cancel</a>
+        </div>
+            </div>
+    </form>
+
+    </div>
+</div>

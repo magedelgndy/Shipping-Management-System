@@ -1,0 +1,50 @@
+﻿@model City
+@{
+    ViewData["Title"] = "Add";
+}
+
+<!-- Page Heading -->
+
+
+<div class="row card shadow mb-4">
+    <div class="card-header py-3">
+        <h1 class="m-0 text-center font-weight-bold text-secondary">اضافه مدينة جديد</h1>
+    </div>
+    <div class="card-body col-md-12 ">
+        <form asp-controller="City" asp-action="Add" class="" method="post">
+            <div asp-validation-summary="All" class="text-danger col-md-12" ></div>
+
+            <div class="d-flex flex-wrap p-5" style="height:30vh;">
+                <div class="form-group col-md-4 p-3">
+                    <label asp-for="Name">اسم المدينة</label>
+                    <input type="text" class="form-control" asp-for="Name">
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-4 p-3">
+                    <label asp-for="ShippingPrice">تكلفة الشحن العادي</label>
+                    <input type="text" class="form-control" asp-for="ShippingPrice">
+                    <span asp-validation-for="ShippingPrice" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-4 p-3">
+                    <label asp-for="PickUpPrice">تكلفة شحن ال pick up</label>
+                    <input type="text" class="form-control" asp-for="PickUpPrice">
+                    <span asp-validation-for="PickUpPrice" class="text-danger"></span>
+                </div>
+                <input type="text" class="form-control visually-hidden" asp-for="StateId" value="@ViewBag.stateId">
+            </div>
+
+            <div class="d-flex justify-content-end px-3 mb-3">
+                <button type="submit" class="btn btn-outline-success col-2 mx-2">اضافة</button>
+                <a asp-controller="State" asp-action="Index" class="btn btn-secondary col-1">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section scripts{
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+}

@@ -1,0 +1,265 @@
+﻿@model OrderViewModel
+@{
+    ViewData["Title"] = "Add";
+    //string type = "";
+}
+
+
+<!-- Page Heading -->
+<div class="card shadow mb-4 rounded">
+    <div class="d-sm-flex align-items-center justify-content-between m-4">
+        <h1 class="mb-0 text-gray-800"> اضافة طلب جديد</h1>
+    </div>
+</div>
+
+
+
+
+<div class="row card shadow m-2">
+    <div class="card-body col-md-12 ">
+        <form asp-controller="Order" asp-action="Add" class="" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger col-md-12"></div>
+            <div id="dataTable_filter" class="card-header">
+                <div class="form-group p-3 d-flex justify-content-center align-items-center">
+                    <label asp-for="ShippingType">النوع : </label>
+                    <select class="form-control col-4 m-1" asp-for="Type">
+                        @foreach (var item in Enum.GetValues(typeof(Shipping.Models.Type)))
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap mt-4">
+                <div class="form-group col-md-4 p-1 ">
+                    <label asp-for="ClientName">  إسم العميل : </label>
+                    <input type="text" class="form-control" asp-for="ClientName">
+                    <span asp-validation-for="ClientName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-4 p-1 ">
+                    <label asp-for="ClientPhoneNumber1"> رقم العميل : </label>
+                    <input type="tel" class="form-control" asp-for="ClientPhoneNumber1">
+                    <span asp-validation-for="ClientPhoneNumber1" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-4 p-1">
+                    <label asp-for="ClientPhoneNumber2">رقم بديل  : </label>
+                    <input type="text" class="form-control" asp-for="ClientPhoneNumber2">
+                    <span asp-validation-for="ClientPhoneNumber2" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-4 p-1">
+                    <label asp-for="ClientEmail">البريد الإلكتروني</label>
+                    <input type="text" class="form-control" asp-for="ClientEmail">
+                    <span asp-validation-for="ClientEmail" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-4 p-1">
+                    <label asp-for="StateName">المحافظة : </label>
+                    <select id="state" class="form-control" asp-for="StateName">
+                        <option value="">Select a state</option>
+                        @foreach (var state in ViewBag.States)
+                        {
+                            <option value="@state.Name">@state.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="StateName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-4 p-1">
+                    <label asp-for="CityName">المدينة : </label>
+                    <select id="city" asp-for="CityName" class="form-control">
+                        <option value="">Select a city</option>
+                    </select>
+                    <span asp-validation-for="CityName" class="text-danger"></span>
+                </div>
+            </div>
+            <hr class="sidebar-divider">
+            <div class="d-flex flex-wrap">
+                <div class="form-group col-md-4 p-1">
+                    <label asp-for="BranchName" class="control-label">الفرع</label>
+                    <select id="branch" asp-for="BranchName" class="form-select">
+                        <option value=""> اختر فرع</option>
+                    </select>
+                    <span asp-validation-for="BranchName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-4 p-1">
+                    <label asp-for="StreetName">الشارع والقرية : </label>
+                    <input type="text" class="form-control" asp-for="StreetName">
+                    <span asp-validation-for="StreetName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-4 d-flex align-items-center p-4 ">
+                    <input class="form-check-input " type="checkbox" asp-for="IsVillage">
+                    <label asp-for="IsVillage" class="mr-4 mt-1">التوصيل لقرية</label>
+                </div>
+                <div class="form-group col-md-4 p-1">
+                    <label asp-for="PaymentType">نوع الدفع : </label>
+                    <select class="form-control" asp-for="PaymentType">
+                        @foreach (PaymentType item in Enum.GetValues(typeof(PaymentType)))
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group col-md-4 p-1">
+                    <label asp-for="ShippingType">نوع الشحن : </label>
+                    <select class="form-control" asp-for="ShippingType">
+                        @foreach (ShippingType item in Enum.GetValues(typeof(ShippingType)))
+                        {
+                            <option value="@item">@item</option>
+
+                        }
+                    </select>
+                </div>
+            </div>
+            <hr class="sidebar-divider">
+
+
+            <a id="add-product-btn" class="btn btn-outline-success" style="float:right;">اضافة منتج</a>
+            <div class="form-group p-1 col-12" style="clear:both">
+
+       
+                <table class="table table-bordered text-center table-hover col-8">
+                    <thead>
+                        <tr>
+                            <th>اسم المنتج</th>
+                            <th>الكمية</th>
+                            <th>الوزن (جم)</th>
+                            <th>حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table-body">
+                    </tbody>
+                </table>
+
+            </div>
+
+
+            <div class="d-flex justify-content-around align-items-center">
+                <div class="form-group col-md-4 p-1">
+                    <label asp-for="TotalWeight">اجمالي الوزن (جم)</label>
+                    <input type="number" class="form-control " asp-for="TotalWeight" readonly>
+                    <span asp-validation-for="TotalWeight" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-4 p-1">
+                    <label asp-for="OrderCost">تكلفة الطلب</label>
+                    <input type="number" class="form-control" asp-for="OrderCost">
+                    <span asp-validation-for="OrderCost" class="text-danger"></span>
+                </div>
+            </div>
+            <hr class="sidebar-divider bg-black" style="width: 100%;">
+
+            <div class="d-flex justify-content-end col-md-12 m-4">
+                <button type="submit" class="btn btn-outline-success mx-2  col-3">إضافة</button>
+                <a asp-controller="Order" asp-action="Index" class="btn btn-secondary col-1 ml-5 ">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts{
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var stateDropdown = $('#state');
+            var branchDropdown = $('#branch');
+
+            stateDropdown.on('change', function () {
+                var selectedState = stateDropdown.val();
+
+                branchDropdown.empty();
+
+                $.ajax({
+                    url: '/Order/GetBranchesByState',
+                    type: 'GET',
+                    data: { state: selectedState },
+                    success: function (result) {
+                        $.each(result, function (index, branch) {
+                            branchDropdown.append($('<option></option>').val(branch).text(branch));
+                        });
+                    },
+                    error: function () {
+                        console.log('Failed to retrieve Branches.');
+                    }
+                });
+            });
+        });
+
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            var stateDropdown = $('#state');
+            var cityDropdown = $('#city');
+
+            stateDropdown.on('change', function () {
+                var selectedState = stateDropdown.val();
+
+                cityDropdown.empty();
+
+                $.ajax({
+                    url: '/Order/GetCitiesByState',
+                    type: 'GET',
+                    data: { state: selectedState },
+                    success: function (result) {
+                        $.each(result, function (index, city) {
+                            cityDropdown.append($('<option></option>').val(city).text(city));
+                        });
+                    },
+                    error: function () {
+                        console.log('Failed to retrieve cities.');
+                    }
+                });
+            });
+        });
+
+
+        $(document).ready(function () {
+            $("#add-product-btn").click(function () {
+                addProductRow();
+            });
+        });
+
+        function addProductRow() {
+            var tableBody = $("#products-table-body");
+            var index = tableBody.children().length;
+
+            var newRow = $("<tr>");
+            newRow.append($("<td>").append($("<input>").attr("name", "orderProducts[" + index + "].ProductName").attr("class", "form-control").attr("type", "text")));
+            newRow.append($("<td>").append($("<input>").attr("name", "orderProducts[" + index + "].ProductQuantity").attr("class", "form-control").attr("type", "number").on("input", function () {
+                var totalWeight = calculateTotalWeight();
+                $("#TotalWeight").val(totalWeight);
+            })));
+            newRow.append($("<td>").append($("<input>").attr("name", "orderProducts[" + index + "].Weight").attr("class", "form-control").attr("type", "number").on("input", function () {
+                var totalWeight = calculateTotalWeight();
+                $("#TotalWeight").val(totalWeight);
+            })));
+            newRow.append($("<td>").append($("<button>").attr("type", "button").attr("class", "btn btn-danger").text("حذف").click(function () {
+                $(this).closest("tr").remove();
+                var totalWeight = calculateTotalWeight();
+                $("#TotalWeight").val(totalWeight);
+            })));
+
+            tableBody.append(newRow);
+        }
+
+        function calculateTotalWeight() {
+            var totalWeight = 0;
+            var tableBody = $("#products-table-body");
+            tableBody.find("tr").each(function () {
+                var quantity = parseInt($(this).find("input[name$='.ProductQuantity']").val()) || 0;
+                var weight = parseInt($(this).find("input[name$='.Weight']").val()) || 0;
+                var productWeight = quantity * weight;
+                totalWeight += productWeight;
+            });
+            return totalWeight;
+        }
+
+
+    </script>
+
+}
+

@@ -1,0 +1,32 @@
+﻿@model WeightSetting
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h2 class="m-0 text-center font-weight-bold text-secondary">إعدادات تكلفة الشحن الإضافية بالنسبة لوزن الشحنة</h2>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            <div class="d-flex flex-wrap">
+                <div class="form-group col-md-5 p-3">
+                    <label asp-for="Cost" class="h6 text-gray-900 mb-4 font-weight-bold">تكلفة الشحن الافتراضي بالجنية  من 0 كجم إلي وزن:</label>
+                    <input asp-for="Cost" class="form-control" />
+                    <span asp-validation-for="Cost" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-5 p-3">
+                    <label asp-for="Addition_Cost" class="h6 text-gray-900 mb-4 font-weight-bold">سعر كل كجم إضافي بالجنية : </label>
+                    <input asp-for="Addition_Cost" class="form-control" />
+                    <span asp-validation-for="Addition_Cost" class="text-danger"></span>
+                </div>
+
+            </div>
+
+            <div class="d-flex justify-content-end px-3">
+                <button type="submit" class="btn btn-outline-success col-2 mx-2">حفظ</button>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-secondary col-1">إلغاء</a>
+            </div>
+        }
+    </div>
+</div>

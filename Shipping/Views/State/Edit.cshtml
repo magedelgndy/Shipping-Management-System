@@ -1,0 +1,29 @@
+﻿@model Shipping.Models.State
+
+
+
+<div class="row card shadow m-2">
+    <!-- Page Heading -->
+    <div class="card-header py-3 rounded">
+        <h1 class="m-0 text-center font-weight-bold text-secondary"> تعديل بيانات المحافظة</h1>
+
+    </div>
+    <div class="card-body col-md-12 " style="height:30vh;">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            <div class="d-flex justify-content-around align-items-center " style="height:30vh;">
+                <div class="form-group col-md-4 p-1 d-flex align-items-center ">
+                    <label asp-for="Name" class="col-3">الإسم : </label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="col-4 ">
+                    <button type="submit" class="btn btn-outline-success mx-2 col-6">حفظ</button>
+                        <a href="@Url.Action("Index")" class="btn btn-secondary col-3">إلغاء</a>
+                    </div>
+            </div>
+
+        }
+    </div>
+</div>

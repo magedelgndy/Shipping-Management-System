@@ -1,0 +1,202 @@
+﻿@inject IAuthorizationService AuthorizationService
+@model List<OrderViewModel>
+@{
+    ViewData["Title"] = "Index";
+    SelectList Delivers = new SelectList(ViewBag.Delivery, "DeliveryId", "Name", "BranchId");
+}
+
+
+<div class="card shadow mb-4 rounded">
+    <div class="d-sm-flex align-items-center justify-content-between m-4">
+        <h1 class="mb-0 text-gray-800">عرض الطلبات</h1>
+    </div>
+</div>
+
+<div class="my-4 bg-light p-2 px-4 rounded">
+    <table class="table table-bordered text-center table-cust" id="dataTable" cellspacing="0">
+        <thead>
+            <tr style="background-color:#ddd;">
+                <th>#</th>
+                <th>التاريخ</th>
+                <th>بيانات العميل</th>
+                @*<th>المحافظة</th>*@
+                <th>المدينة</th>
+                <th>التكلفة الكلية</th>
+                @*<th>تكلفة الشحن</th>*@
+                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Orders.Edit).Result.Succeeded)
+                {
+                    <th>تعديل الطلب</th>
+                }
+                @if (User.IsInRole("المناديب") || User.IsInRole("الموظفين"))
+                {
+                    <th>تغيير الحالة</th>
+                }
+
+                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Orders.Delete).Result.Succeeded)
+                {
+                    <th>حذف</th>
+                }
+
+                <th>طباعة</th>
+                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Orders.Edit).Result.Succeeded)
+                {
+                    <th>المندوب</th>
+                }
+
+            </tr>
+        </thead>
+        <tbody id="TableBody">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.OrderDate</td>
+                    <td>
+                        @item.ClientName
+                        <br>
+                        @item.ClientPhoneNumber1
+                    </td>
+                    @*<td>@item.StateName</td>*@
+                    <td>@item.CityName</td>
+                    <td>@(item.OrderCost + item.ShippingCost)</td>
+                    @*<td>@item.ShippingCost</td>*@
+                    @if (AuthorizationService.AuthorizeAsync(User, Permissions.Orders.Edit).Result.Succeeded)
+                    {
+                        <td>
+                            <a class="btn btn-outline-success" asp-action="Edit" asp-route-Id="@item.Id">
+                                <i class="fa-solid fa-pen-to-square fa-1x"></i>
+                            </a>
+                        </td>
+                    }
+                    @if (User.IsInRole("المناديب") || User.IsInRole("الموظفين"))
+                    {
+                        <td>
+                            <select id="status_@item.Id" class="form-select-cust" onchange='changeStatus(@item.Id)'>
+                                @foreach (var status in Enum.GetNames(typeof(OrderStatus)))
+                                {
+                                    <option value="@status" selected="@(status == item.OrderStatus)">@status</option>
+                                }
+                            </select>
+                        </td>
+                    }
+
+
+                    @if (AuthorizationService.AuthorizeAsync(User, Permissions.Orders.Delete).Result.Succeeded)
+                    {
+                        <td>
+                            <a class="btn btn-outline-danger" asp-action="Delete" asp-route-Id="@item.Id">
+                                <i class="fa-solid fa-trash-can fa-1x"></i>
+                            </a>
+                        </td>
+                    }
+
+                    <td><a asp-action="OrderReicept" asp-route-Id="@item.Id" class="btn btn-outline-secondary"><i class="fa-solid fa-print fa-1x"></i></a></td>
+                    @if (AuthorizationService.AuthorizeAsync(User, Permissions.Orders.Edit).Result.Succeeded
+                        && (!User.IsInRole("التجار") && !User.IsInRole("المناديب")))
+                    {
+                        <td>
+                            <select id="delivery_@item.Id" class="form-select-cust" onchange='AssignDelivery(@item.Id)'>
+                                <option value="">اختر المندوب</option>
+                                @foreach (var item1 in ViewBag.Delivery)
+                                {
+                                    @if (item1.BranchId == item.BranchId)
+                                    {
+                                        <option value="@item1.OrignalIdOnlyInDeliveryTable" selected="@(item1.OrignalIdOnlyInDeliveryTable == item.DeliveryId)">@item1.Name</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    }
+                    @if (AuthorizationService.AuthorizeAsync(User, Permissions.Orders.Edit).Result.Succeeded
+                        && (User.IsInRole("التجار") || User.IsInRole("المناديب")))
+                    {
+                        <td>
+                                @foreach (var item1 in ViewBag.Delivery)
+                                {
+                                    
+                                        if(item1.OrignalIdOnlyInDeliveryTable == item.DeliveryId)
+                                            @item1.Name
+                                    
+                                }
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+@section Scripts {
+    <script>
+
+    //function work when Assigning delivery
+    function AssignDelivery(id) {
+        var Id = id;
+        var ele = document.getElementById("delivery_" + `${id}`);
+        var delivery = ele.value;
+
+        $.ajax({
+            url: '/Order/ChangeDelivery',
+            type: 'POST',
+            data: { Id: Id, deliveryId: delivery },
+            success: function (response) {
+                console.log("Mandob Changed");
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+    }
+
+    //-----------------------//
+
+    //function work when changing status
+    function changeStatus(id) {
+        var Id = id;
+        var ele = document.getElementById("status_" + `${id}`);
+        var status = ele.value;
+
+        $.ajax({
+            url: '/Order/ChangeStatus',
+            type: 'POST',
+            data: { Id: Id, status: status },
+            success: function (response) {
+                console.log("changed");
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+    }
+
+    //-----------------------//
+    //render new table
+    $(document).ready(function () {
+        $('.showStatus').change(function () {
+            var status = $(this).val();
+
+            $.ajax({
+                url: '/Order/GetOrdersDependonStatus',
+                type: 'POST',
+                data: { status: status },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                },
+                success: function (response) {
+                    //console.log(response)
+                    var table = document.getElementById("TableBody");
+                    table.innerHTML = "";
+                    for (let i = 0; i < response.length; i++) {
+                        table.innerHTML += response[i]
+                    }
+
+                }
+
+            });
+        });
+    });
+
+    </script>
+}

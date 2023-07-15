@@ -1,0 +1,111 @@
+﻿@inject IAuthorizationService AuthorizationService
+@model IEnumerable<EmployeeViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h2 class="m-0 text-center font-weight-bold text-secondary">الموظفين</h2>
+    </div>
+
+
+    <div class="card-body">
+
+        <div class="row">
+            <div class="col-md-6 col-12">
+                <div class="d-flex justify-content-end justify-content-md-start">
+                    @using (Html.BeginForm("Search", "Employee", FormMethod.Get))
+                    {
+                        <div class="form-group col-12 rounded d-flex align-items-center">
+
+                            <input type="text" name="searchTerm" class="form-control" value="@ViewBag.SearchTerm" />
+                            <button type="submit" class="btn btn-outline-secondary m-1">بحث</button>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col-md-6 col-12">
+                <div class="d-flex justify-content-start justify-content-md-end">
+                    <p class="m-2">
+                        @if (AuthorizationService.AuthorizeAsync(User, Permissions.Employees.Create).Result.Succeeded)
+                        {
+                            <a asp-action="Add" class="btn btn-outline-secondary">إضافة موظف جديد</a>
+                        }
+                    </p>
+                </div>
+            </div>
+
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead style="background-color:lightgrey">
+                    <tr>
+                        <th>الإسم   </th>
+                        <th>البريد الإلكتروني</th>
+                        <th>رقم الهاتف</th>
+                        <th>الفرع</th>
+                        <th>الحالة</th>
+                        <th>الصلاحيات</th>
+                        <th>الإعدادت</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <td>@item.Name</td>
+                            <td>@item.Email</td>
+                            <td>@item.Phone</td>
+                            <td>@item.BranchName</td>
+                            <td class="form-switch">
+                                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Employees.Delete).Result.Succeeded)
+                                {
+                                    <input class="form-check-input" type="checkbox" style="margin:auto;"
+                                           asp-for="@item.Status" data-id="@item.Id" onchange="changeState(this)" checked="@item.Status">
+                                }
+                            </td>
+                            <td>@item.Role</td>
+                            <td>
+                                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Employees.Edit).Result.Succeeded)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-success">تعديل <i class="fa-solid fa-pen-to-square "></i></a>
+                                }
+                            </td>
+                        </tr>
+                    }
+
+
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function changeState(checkbox) {
+            var id = $(checkbox).data('id');
+            var status = checkbox.checked;
+            $.ajax({
+                url: '@Url.Action("ChangeState", "Employee")',
+                type: 'POST',
+                data: { id: id, status: status },
+                success: function () {
+                    console.log('State changed successfully!');
+                },
+                error: function () {
+                    console.log('Failed to change state!');
+                }
+            });
+        }
+    </script>
+
+}

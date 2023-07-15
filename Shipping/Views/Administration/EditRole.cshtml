@@ -1,0 +1,36 @@
+﻿@model EditRoleViewModel
+
+@{
+    ViewData["Title"] = "Edit Role";
+}
+
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h2 class="m-0 text-center font-weight-bold text-secondary">تعديل المجموعه</h2>
+
+    </div>
+    <div class="card-body">
+        <form asp-controller="Administration" asp-action="EditRole" method="post">
+            <div class="form-group d-none col-md-4 p-1 d-flex align-items-center ">
+                <input asp-for="RoleId" hidden class="form-control" />
+
+            </div>
+            <div class="d-flex justify-content-around align-items-center" style="height:30vh;">
+                <div class="form-group col-md-12 p-1 d-flex align-items-center ">
+                    <label asp-for="RoleName" class="col-6"> اسم المجموعه : </label>
+                    <input asp-for="RoleName" class="form-control col-6" />
+                </div>
+                <div class="form-group col-md-7">
+                    <span asp-validation-for="RoleName" class="text-danger"></span>
+                </div>
+
+            </div>
+            <div class="col-7">
+                <button type="submit" class="btn btn-outline-success col-6 mx-2">حفظ</button>
+                <a asp-controller="Administration" asp-action="ListRoles" class="btn btn-secondary">إلغاء</a>
+            </div>
+        </form>
+    </div>
+
+</div>

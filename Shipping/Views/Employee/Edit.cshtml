@@ -1,0 +1,49 @@
+﻿@model EmployeeEditViewModel
+<div class="bg-light rounded my-4 row">
+    <h2 class="text-secondary text-center">تعديل بيانات الموظف</h2>
+</div>
+
+<div class="container bg-light rounded">
+    <form method="post" asp-action="Edit" class="d-flex flex-wrap">
+        <div class="row">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="Name" class="control-label">الإسم</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="Email" class="control-label">البريد الإلكتروني</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="Phone" class="control-label">رقم الهاتف</label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="BranchName" class="control-label">الفرع</label>
+                <select asp-for="BranchName" class="form-select" asp-items="@ViewBag.BranchList">
+                </select>
+                <span asp-validation-for="BranchName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="Role" class="control-label">المجموعه</label>
+                <select asp-for="Role" class="form-select" asp-items="@ViewBag.empRoles">
+                </select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
+
+
+        </div>
+
+        <div class="m-3" style="position: relative;height: 10vh;">
+            <button type="submit" class="btn btn-outline-primary">حفظ</button>
+            <a asp-controller="Employee" asp-action="Index" class="btn btn-outline-secondary">إلغاء</a>
+        </div>
+    </form>
+</div>

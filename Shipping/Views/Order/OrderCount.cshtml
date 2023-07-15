@@ -1,0 +1,66 @@
+﻿@inject IAuthorizationService AuthorizationService
+
+@model List<OrderViewModel>
+
+
+<style>
+
+    .carddd {
+/*        width: 19rem;*/
+        min-height : 13rem;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        transition: box-shadow 0.3s ease-in-out;
+    }
+
+        .carddd:hover {
+            box-shadow: none;
+        }
+
+    #title {
+        float: left;
+        margin-right: 0.5rem;
+    }
+</style>
+
+<div class="card shadow mb-4 rounded">
+    <div class="d-sm-flex align-items-center justify-content-between m-4">
+        <h1 class="mb-0 text-gray-800">الطلبات</h1>
+        @if (AuthorizationService.AuthorizeAsync(User, Permissions.Orders.Create).Result.Succeeded && User.IsInRole("التجار"))
+        {
+            <a asp-action="Add" asp-controller="Order" class="d-none d-sm-inline-block btn btn-sm btn-outline-secondary shadow-sm">
+                <i class="fas fa-plus-circle fa-sm text-gray-800"></i> اضافة طلب جديد
+            </a>
+        }
+
+    </div>
+</div>
+
+<div class="row m-2">
+    @foreach (OrderStatus item in Enum.GetValues(typeof(OrderStatus)))
+    {
+        if (ViewBag.RoleName == "المناديب" && item.ToString() == "جديد")
+        {
+            continue;
+        }
+        <div class="col-lg-3">
+            <div class="carddd card m-1">
+
+                <div class="card-body">
+                    <h5 class="card-title text-primary">@item <i id="title" class="fa-solid fa-lock"></i> </h5>
+
+                    <h5 class="card-title">@Model.Where(p=>p.OrderStatus==item.ToString()).Count()</h5>
+                    <h5 class=" text-primary">
+                        <a class="btn btn-primary" href="/order/IndexAfterFilter?query=@item.ToString()">
+                            استعلام
+                        </a>
+                    </h5>
+
+
+                </div>
+            </div>
+        </div>
+
+    }
+</div>
+
+

@@ -1,0 +1,106 @@
+﻿@model Shipping.ViewModels.DeliveryViewModel
+
+@{
+    ViewData["Title"] = "Add New Delivery";
+}
+<div class="bg-light rounded my-4 row">
+    <h2 class="p-4 fw-bold text-center text-secondary"> إضافة مندوب </h2>
+</div>
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="row container bg-light rounded">
+    <div class="col-md-12">
+        <form asp-action="add" method="post" class="d-flex flex-wrap">
+            <br />
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="Name" class="control-label">الإسم</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="Email" class="control-label">البريد الإلكتروني</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="Password" class="control-label">الرقم السري</label>
+                <input asp-for="Password" type="password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="Phone" class="control-label">رقم الهاتف</label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="Government">المحافظة</label>
+                <select id="state" asp-for="Government" asp-items="ViewBag.StatesList" class="form-control">
+                    <option value="">اختر محافظة</option>
+                </select>
+            </div>
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="BranchName" class="control-label">الفرع</label>
+                <select id="branch" asp-for="BranchName" class="form-select">
+                    <option value=""> اختر فرع</option>
+                </select>
+                <span asp-validation-for="BranchName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="Address" class="control-label">العنوان</label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="DiscountType" class="control-label">نوع الخصم</label>
+                <select asp-for="DiscountType" class="form-control" asp-items="Html.GetEnumSelectList<DiscountType>()">
+                    <option value="">---اختر نوع---</option>
+                </select>
+            </div>
+            <div class="form-group col-md-4 p-3">
+                <label asp-for="CompanyPercentage" class="control-label">نسبة الشركة</label>
+                <input asp-for="CompanyPercentage" class="form-control" />
+                <span asp-validation-for="CompanyPercentage" class="text-danger"></span>
+            </div>
+            <div class="m-3" style="position: relative;height: 10vh;">
+                <button type="submit" class="btn btn-outline-primary">إضافة</button>
+                <a asp-controller="Delivery" asp-action="Index" class="btn btn-outline-secondary">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            var stateDropdown = $('#state');
+            var branchDropdown = $('#branch');
+
+            stateDropdown.on('change', function () {
+                var selectedState = stateDropdown.val();
+
+                branchDropdown.empty();
+
+                $.ajax({
+                    url: '/Delivery/GetBranchesByState',
+                    type: 'GET',
+                    data: { state: selectedState },
+                    success: function (result) {
+                        $.each(result, function (index, branch) {
+                            branchDropdown.append($('<option></option>').val(branch).text(branch));
+                        });
+                    },
+                    error: function () {
+                        console.log('Failed to retrieve Branches.');
+                    }
+                });
+            });
+        });
+
+    </script>
+}

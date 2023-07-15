@@ -1,0 +1,97 @@
+﻿@using Shipping.Constants;
+@model PermissionsFormViewModel
+
+@{
+    ViewData["Title"] = "Manage Permissions";
+}
+<div class="card mt-4">
+    <div class="card-header text-center text-secondary">
+        <h2>@Model.RoleName</h2>
+        تحديد الصلاحية 
+    </div>
+<form asp-action="ManagePermissions" method="post">
+        <div class="card-body">
+            <input type="hidden" asp-for="RoleId" />
+            <div class="table-responsive">
+                 <table class="table table-striped text-center">
+                <thead>
+                    <tr >
+                            <th style="padding-bottom: 2rem;"><input type="checkbox" class="form-check-input" onClick="toggle(this)" /></th>
+                            <th class="p-2">الصلاحيه</th>
+                            <th class="p-2">عرض</th>
+                            <th class="p-2">اضافه</th>
+                            <th class="p-2">تعديل</th>
+                            <th class ="p-2">حذف</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @for (int j = 0; j < Model.RoleCalims.Count; j += 4)
+                    {
+                        <tr>
+                            <td></td>
+                            @foreach (var item in EnglishVsArabic.ModulesInEn_AR)
+                            {
+                                if (item.Key == Model.RoleCalims[j].DisplayValue.Split('.')[1])
+                                {
+                                    <td>@item.Value</td>
+                                    break;
+                                }
+                            }
+                            
+                            @for (int i = 0; i < Model.RoleCalims.Count; i++)
+                            {
+                                if (@Model.RoleCalims[j].DisplayValue.Split('.')[1] != @Model.RoleCalims[i].DisplayValue.Split('.')[1])
+                                { continue; }
+                                
+                                
+                                @*disabled Controls permissions in admin permissions*@
+                                if (@Model.RoleCalims[j].DisplayValue.Split('.')[1] == "Controls" && Model.RoleName == "Admin")
+                                {
+                                    <td class="">
+                                        <div class="form-check m-1 d-flex justify-content-center">
+                                            <input type="hidden" asp-for="@Model.RoleCalims[i].DisplayValue" />
+                                            <input disabled type="checkbox" checked class="form-check-input" />
+                                            <input type="hidden" asp-for="@Model.RoleCalims[i].IsSelected" class="form-check-input" />
+                                        </div>
+                                    </td>
+                                    continue; 
+                                }
+                                
+                                <td>
+                                    <div class="form-check m-1 d-flex justify-content-center">
+                                        <input type="hidden" asp-for="@Model.RoleCalims[i].DisplayValue" />
+                                        <input asp-for="@Model.RoleCalims[i].IsSelected" class="form-check-input foo" />
+                                    </div>
+                                </td>
+
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            </div>
+            <div asp-validation-summary="All" class="text-danger"></div>
+        </div>
+        <div style="position:relative">
+            <div class="card-footer d-flex justify-content-end">
+                <button type="submit" class="btn btn-outline-success col-2 mx-2">حفظ</button>
+            <a asp-action="ListRoles" class="btn btn-secondary col-1">الغاء</a>
+        </div>
+        </div>
+        
+
+</form>
+</div>
+
+@section Scripts
+{
+    <script>
+        function toggle(source) {
+            checkboxes = document.getElementsByClassName('foo');
+            for (var i = 0, n = checkboxes.length; i < n; i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
+    </script>
+}

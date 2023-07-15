@@ -1,0 +1,51 @@
+﻿@inject IAuthorizationService AuthorizationService
+<!-- Topbar -->
+<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow ">
+
+    <!-- Sidebar Toggle (Topbar) -->
+    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+        <i class="fa fa-bars"></i>
+    </button>
+
+    <!-- Topbar Navbar -->
+    <ul class="navbar-nav mr-auto text-right">
+        <!-- Nav Item - User Information -->
+        @if (!User.Identity.IsAuthenticated)
+        {
+        <li class="nav-item">
+                <a class="btn nav-link text-gray-800" asp-area="" asp-controller="Account" asp-action="Login">تسجيل الدخول</a>
+        </li>
+        }
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <span class="mr-2 d-none d-lg-inline text-gray-800 small mx-3"> @User.Identity.Name</span>
+                    <img class="img-profile rounded-circle"
+                         src="/img/undraw_profile.svg">
+                }
+            </a>
+            <!-- Dropdown - User Information -->
+            @if (User.Identity.IsAuthenticated)
+            {
+            <div class="dropdown-menu dropdown-menu-left  shadow animated--grow-in text-right"
+                    aria-labelledby="userDropdown">
+                    <a class="dropdown-item" asp-area="">مرحبا @User.Identity.Name</a>
+                    <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="ChangePassword">
+                        تغيير الرقم السري
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" asp-area="" data-toggle="modal" data-target="#logoutModal">
+                        تسجيل الخروج
+                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-800"></i>
+                </a>
+            </div>
+            }
+
+        </li>
+
+    </ul>
+
+</nav>
+<!-- End of Topbar -->

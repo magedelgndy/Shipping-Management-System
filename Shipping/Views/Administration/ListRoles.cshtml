@@ -1,0 +1,133 @@
+﻿@inject IAuthorizationService AuthorizationService
+@model IEnumerable<ApplicationRole>
+
+@{
+    ViewData["Title"] = "List of Roles";
+    int counter = 0;
+}
+
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h2 class="m-0 text-center font-weight-bold text-secondary">المجموعات</h2>
+    </div>
+
+    @if (Model.Any())
+    {
+            <div class="card-body">
+            <div class="d-flex align-items-center justify-content-around mb-3">
+                <div class="col-md-6 col-12 d-flex ">
+
+                    @using (Html.BeginForm("Search", "Administration", FormMethod.Get))
+                    {
+                        <input type="submit" value="بحث" class="btn btn-outline-secondary m-1" />
+                        <input type="text" name="query" />
+                    }
+                </div>
+                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Controls.Create).Result.Succeeded)
+                {
+                    <a asp-controller="Administration" asp-action="CreateRole" class="btn btn-sm btn-outline-secondary shadow-sm"><i class="fas fa-plus-circle fa-sm text-gray-800"></i> اضافه مجموعه </a>
+                }
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead style="background-color:lightgrey">
+                        <tr>
+                            <th>#</th>
+                            <th>اسم المجموعه</th>
+                            <th>تاريخ الاضافه</th>
+                            <th>الاعدادات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+
+                        @foreach (var role in Model)
+                        {
+                            counter++;
+                            <tr>
+                                <td>@counter</td>
+                                <td>@role.Name</td>
+                                <td>@role.Date</td>
+                                @if ((role.Name == "Admin" || role.Name == "التجار" || role.Name == "الموظفين" || role.Name == "المناديب") 
+                                && User.IsInRole("Admin"))
+                                {
+                                    <td>
+                                        <a asp-controller="Administration" asp-action="ManagePermissions" asp-route-roleId="@role.Id" class="btn btn-outline-primary">
+                                            <i class="fa-solid fa-gear fa-1x "></i>
+                                        </a>
+                                    </td>
+                                    continue;
+                                }
+                                @if (role.Name == "Admin" || role.Name == "التجار" || role.Name == "الموظفين" || role.Name == "المناديب")
+                                {
+                                    <td></td>
+                                    continue;
+                                }
+                                <td style="width: 500px;">
+                                    <form method="post" asp-controller="Administration" asp-action="DeleteRole" asp-route-RoleId="@role.Id">
+                                        @if (AuthorizationService.AuthorizeAsync(User, Permissions.Controls.Edit).Result.Succeeded)
+                                        {
+                                            <a asp-controller="Administration" asp-action="EditRole" asp-route-id="@role.Id" class="btn btn-outline-success">
+                                                <i class="fa-solid fa-pen-to-square fa-1x "></i>
+                                            </a>
+
+                                            <Span> | </Span>
+
+                                        }
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a asp-controller="Administration" asp-action="ManagePermissions" asp-route-roleId="@role.Id" class="btn btn-outline-primary">
+                                                <i class="fa-solid fa-gear fa-1x"></i>
+                                            </a>
+
+                                            <Span> | </Span>
+                                        }
+                                        @if (AuthorizationService.AuthorizeAsync(User, Permissions.Controls.Delete).Result.Succeeded)
+                                        {
+                                            <span id="DeleteSpan_@role.Id" style="cursor:pointer">
+                                                <a onclick="confirmDelete('@role.Id',true)" class="btn btn-outline-danger">
+                                                    <i class="fa-solid fa-trash-can fa-1x "></i>
+                                                </a>
+                                            </span>
+
+                                            <span id="ConfirmDeleteSpan_@role.Id" style="display:none">
+                                                <div style="">
+                                                    هل تريد الحذف فعلا؟
+                                                    <button type="submit" class="btn btn-danger" style="padding: 3px;">نعم</button>
+                                                    <a onclick="confirmDelete('@role.Id',false)" class="btn btn-primary" style="padding: 3px;">لا</a>
+                                                </div>
+
+                                            </span>
+                                        }
+
+
+                                    </form>
+                                </td>
+
+                            </tr>
+
+
+                        }
+
+
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card mb-2">
+            <div class="card-header">
+                No roles created yet.
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Use the button blow to create the role</h5>
+                <a asp-controller="Administration" asp-action="CreateRole" class="btn btn-primary">Create Role</a>
+            </div>
+        </div>
+
+    }
+</div>

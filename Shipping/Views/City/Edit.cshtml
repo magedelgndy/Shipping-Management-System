@@ -1,0 +1,52 @@
+﻿@model Shipping.Models.City
+
+
+
+
+<div class="row card shadow m-2">
+    <!-- Page Heading -->
+    <div class="card-header p-3 rounded">
+        <h1 class="m-0 text-center font-weight-bold text-secondary">تعديل بيانات المدينة </h1>
+    </div>
+
+
+    <div class="card-body col-md-12 ">
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="d-flex flex-wrap">
+        <div class="form-group col-md-4 p-3">
+            <label asp-for="Name">الإسم</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+
+        <div class="form-group col-md-4 p-3">
+            <label asp-for="StateId">المحافظة</label>
+            <select asp-for="StateId" asp-items="@ViewBag.StateList" class="form-control">
+                <option value="">Select a state</option>
+            </select>
+            <span asp-validation-for="StateId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group col-md-4 p-3">
+            <label asp-for="PickUpPrice">سعر الإستلام من المقر</label>
+            <input asp-for="PickUpPrice" class="form-control" />
+            <span asp-validation-for="PickUpPrice" class="text-danger"></span>
+        </div>
+
+        <div class="form-group col-md-4 p-3">
+            <label asp-for="ShippingPrice">سعر الشحن</label>
+            <input asp-for="ShippingPrice" class="form-control" />
+            <span asp-validation-for="ShippingPrice" class="text-danger"></span>
+        </div>
+
+    </div>
+  <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-outline-success mx-3  col-2">حفظ</button>
+                <a asp-controller="City" asp-action="Index" asp-route-stateId="@Model.StateId" class="btn btn-secondary mx-3  col-1">إلغاء</a>
+            </div>
+        }
+    </div>
+</div>

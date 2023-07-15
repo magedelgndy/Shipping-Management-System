@@ -1,0 +1,114 @@
+﻿@inject IAuthorizationService AuthorizationService
+@model List<City>
+@{
+    ViewData["Title"] = "Index";
+    var count = 1;
+}
+<!-- Page Heading -->
+
+
+
+<div class="card shadow mb-4">
+    <div class="card-header p-3 rounded">
+        <h1 class="m-0 text-center font-weight-bold text-secondary">المدن</h1>
+    </div>
+    <div class="card-body">
+        <div class="d-flex justify-content-around align-items-center m-3">
+            @using (Html.BeginForm("Search", "City", FormMethod.Get))
+            {
+                @foreach (var item in Model)
+                {
+                    int stateId = item.StateId;
+                    @Html.Hidden("id", stateId)
+
+                }
+
+                <input type="submit" class="btn btn-outline-secondary m-0" value="بحث" />
+                <input type="text" name="query" />
+            }
+            <div>
+                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Cities.Create).Result.Succeeded)
+                {
+                    <a asp-action="Add" asp-route-stateId="@ViewBag.StateId" class="d-none d-sm-inline-block btn btn-sm btn-outline-success shadow-sm mx-1">
+                        <i class="fas fa-plus-circle fa-sm"></i> اضافة مدينة جديدة
+                    </a>
+                }
+                <a asp-controller="State" asp-action="Index" class="d-sm-inline-block btn  btn-sm btn-secondary shadow-sm">الرجوع إلي المحافظات</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered text-center " cellspacing="0">
+                <thead>
+                    <tr style="background-color:#ddd;">
+                        <th>
+                            #
+                        </th>
+                        <th>
+                            الاسم
+                        </th>
+                        <th>
+                            الحاله
+                        </th>
+                         <th>
+                            الاعدادات
+                        </th>
+                        
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@count</td>
+                            <td>
+                                @item.Name
+                            </td>
+                            <td class="form-switch">
+                                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Cities.Delete).Result.Succeeded)
+                                {
+                                    <input style="margin:auto" class="form-check-input btn-outline-success" type="checkbox" asp-for="@item.Status" data-id="@item.Id" onchange="changeState(this)" checked="@item.Status">
+                                }
+                            </td>
+                            <td>
+                                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Cities.Delete).Result.Succeeded)
+                                {
+                                    @Html.ActionLink("مسح", "Delete", new { id = item.Id } ,
+                                    new { @class = "btn btn-danger",onclick = $"return confirm('هل انت متأكد من المسح؟')"
+                                    })
+                                }
+                                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Cities.Edit).Result.Succeeded)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-success">تعديل <i class="fa-solid fa-pen-to-square "></i></a>
+                                }
+                            </td>
+                        </tr>
+                        count += 1;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function changeState(checkbox) {
+            var id = $(checkbox).data('id');
+            var status = checkbox.checked;
+            $.ajax({
+                url: '@Url.Action("ChangeState", "City")',
+                type: 'POST',
+                data: { id: id, status: status },
+                success: function () {
+                    console.log('State changed successfully!');
+                },
+                error: function () {
+                    console.log('Failed to change state!');
+                }
+            });
+        }
+
+
+    </script>
+}

@@ -1,0 +1,120 @@
+﻿@inject IAuthorizationService AuthorizationService
+@model List<State>
+@{
+    ViewData["Title"] = "Index";
+    var count = 1;
+}
+
+<!-- Page Heading -->
+
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 rounded">
+        <h1 class="m-0 text-center font-weight-bold text-secondary">المحافظات</h1>
+
+    </div>
+    <div class="card-body">
+        <div class="d-flex justify-content-around align-items-center mb-3">
+            <form method="get" action="/State/Search">
+                <input type="submit" value="بحث" class="btn btn-outline-secondary m-0" />
+                <input type="text" name="query" id="Name" />
+            </form>
+            @if (AuthorizationService.AuthorizeAsync(User, Permissions.Staties.Create).Result.Succeeded)
+            {
+                <a asp-action="Add" class="d-none d-sm-inline-block btn btn-sm btn-outline-secondary shadow-sm">
+                    <i class="fas fa-plus-circle fa-sm text-gray-800"></i> اضافة محافظة جديد
+                </a>
+            }
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered text-center ">
+                <thead>
+                    <tr style="background-color:#ddd;">
+                        <th>
+                            #
+                        </th>
+                        <th>
+                            الاسم
+                        </th>
+                        <th>
+                            الحاله
+                        </th>
+                        <th>
+                            الاعدادات
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@count</td>
+                            <td>
+                                @item.Name
+                            </td>
+                            <td class="form-switch" >
+                                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Staties.Delete).Result.Succeeded)
+                                {
+                                    <input style="margin:auto" class="form-check-input btn-outline-success" type="checkbox" asp-for="@item.Status" data-id="@item.Id" onchange="changeState(this)" checked="@item.Status">
+                                }
+                            </td>
+                            <td>
+                                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Cities.Delete).Result.Succeeded)
+                                {
+                                    @Html.ActionLink("مسح", "Delete", new { id = item.Id },
+                                    new { @class = "btn btn-danger", onclick = $"return confirm('هل انت متأكد من المسح؟')"})
+                                }
+                                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Staties.Edit).Result.Succeeded)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-success">
+                                        <i class="fa-solid fa-pen-to-square "></i> تعديل المحافظة
+                                    </a>
+
+                                    <span> | </span>
+                                }
+                                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Cities.Create).Result.Succeeded)
+                                {
+
+                                    <a asp-controller="City" asp-action="Add" asp-route-stateId="@item.Id" class="btn btn-outline-secondary ">
+                                        <i class="fa-solid fa-plus-circle"></i>  إضافة مدينة
+                                    </a>
+
+                                    <span> | </span>
+                                }
+                                @if (AuthorizationService.AuthorizeAsync(User, Permissions.Cities.View).Result.Succeeded)
+                                {
+                                    <a asp-controller="City" asp-action="Index" asp-route-stateId="@item.Id" class="btn btn-outline-primary"> <i class="fa-solid fa-city"></i> المدن</a>
+                                }
+                            </td>
+                        </tr>
+                        count += 1;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+@section Scripts {
+    <script>
+        function changeState(checkbox) {
+            var id = $(checkbox).data('id');
+            var status = checkbox.checked;
+            $.ajax({
+                url: '@Url.Action("ChangeState", "State")',
+                type: 'POST',
+                data: { id: id, status: status },
+                success: function () {
+                    console.log('State changed successfully!');
+                },
+                error: function () {
+                    console.log('Failed to change state!');
+                }
+            });
+        }
+    </script>
+}
